@@ -103,6 +103,8 @@ abstract class Server
             return $this->createTemporaryCredentials((string) $response->getBody());
         } catch (BadResponseException $e) {
             $this->handleTemporaryCredentialsBadResponse($e);
+        } catch (CredentialsException $e) {
+            throw $e;
         }
 
         throw new CredentialsException('Failed to get temporary credentials');
@@ -468,7 +470,12 @@ abstract class Server
         }
 
         if ( ! isset($data['oauth_callback_confirmed']) || $data['oauth_callback_confirmed'] != 'true') {
-            throw new CredentialsException('Error in retrieving temporary credentials.');
+            foreach (['oauth_token', 'oauth_token_secret'] as $responseKey) {
+                if (isset($data[$responseKey])) {
+                    $data[$responseKey] = 'hidden';
+                }
+            }
+            throw new CredentialsException('Error in retrieving temporary credentials. Data:' . json_encode($data));
         }
 
         $temporaryCredentials = new TemporaryCredentials();
