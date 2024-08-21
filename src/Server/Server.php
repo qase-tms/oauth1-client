@@ -466,7 +466,7 @@ abstract class Server
         parse_str($body, $data);
 
         if ( ! $data || ! is_array($data)) {
-            throw new CredentialsException('Unable to parse temporary credentials response.');
+            throw new CredentialsException('Unable to parse temporary credentials response. Data:' . serialize($data));
         }
 
         if ( ! isset($data['oauth_callback_confirmed']) || $data['oauth_callback_confirmed'] != 'true') {
